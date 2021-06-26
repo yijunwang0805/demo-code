@@ -73,3 +73,19 @@ class SEIR(object):
     def storeParameters(self):
         print(self.P)
         return self.P
+    
+    def searchBestParam(seir):
+    min_loss, best_param, likeli_potential = float('inf'), None, 0
+    for potential in range(200, 1000, 100):
+        seir.fit(S, potential, I, D, C, train)
+        loss = seir.score(S, potential, I, D, C, train)
+        if loss < min_loss:
+            print('潜在患者：%.4f | 误差： %.6f' % (potential, loss))
+            min_loss, best_param, likeli_potential = loss, seir.P, potential
+    seir.P = best_param
+    seir.score(S, likeli_potential, I, D, C, Y=train, plot=True)
+    return seir, likeli_potential
+
+findPara = SEIR()
+seir, potentials = searchBestParam(findPara)
+findPara.storeParameters()
