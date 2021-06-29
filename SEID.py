@@ -80,7 +80,7 @@ class SEIR(object):
         seir.fit(S, potential, I, D, C, train)
         loss = seir.score(S, potential, I, D, C, train)
         if loss < min_loss:
-            print('潜在患者：%.4f | 误差： %.6f' % (potential, loss))
+            print('E：%.4f | loss： %.6f' % (potential, loss))
             min_loss, best_param, likeli_potential = loss, seir.P, potential
     seir.P = best_param
     seir.score(S, likeli_potential, I, D, C, Y=train, plot=True)
