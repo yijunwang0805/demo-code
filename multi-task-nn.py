@@ -33,18 +33,14 @@ class Net(nn.Module):
         self.bottlenet = nn.Linear(D_in, hidden)
         self.obj1 = nn.Linear(hidden, hidden)
         self.obj2 = nn.Linear(hidden, hidden)
-        self.obj3 = nn.Linear(hidden, D_out)
-        self.obj4 = nn.Linear(hidden, D_out)
         self.dropout = nn.Dropout(dropout)
         
     def forward(self, x):
         yhat = torch.tensor([])
         x = self.dropout(self.bottlenet(x))
-        x1 = torch.sigmoid(self.dropout(F.relu(self.obj1c(self.dropout(self.obj1b(self.dropout(self.obj1a(x))))))))
-        x2 = torch.sigmoid(self.dropout(F.relu(self.obj2(x)))) 
-        x3 = torch.sigmoid(self.dropout(F.relu(self.obj3(x))))
-        x4 = torch.sigmoid(self.dropout(F.relu(self.obj4c(self.dropout(self.obj4b(self.dropout(self.obj4a(x))))))))
-        yhat = torch.cat((x1, x2, x3, x4), 1)
+        x1 = torch.sigmoid(self.dropout(F.relu(self.obj1c(self.dropout(self.obj1b(self.dropout(self.obj1(x))))))))
+        x2 = torch.sigmoid(self.dropout(F.relu(self.ob24c(self.dropout(self.obj4b(self.dropout(self.obj2(x))))))))
+        yhat = torch.cat((x1, x2), 1)
         return yhat
       
 class Net(nn.Module):
@@ -128,29 +124,4 @@ def train(model, criterion, train_loader, validation_loader, optimizer, epochs=1
                 fn = ((yhat == 0) & (y == 1)).sum().item()
                 F1 = round(tp / (tp + 0.5 * (fp + fn) + 1e-9), 2)
                 useful_stuff['F1'].append(F1)
-
-        if (epoch % 50 == 0) & (epoch != 0):
-            plot_accuracy = pd.DataFrame(useful_stuff['validation_accuracy'])
-            pl.clf()
-            pl.figure(figsize=(20,10))
-            pl.plot(useful_stuff['training_loss'], '-b', lw=1, label='training loss')
-            pl.plot(useful_stuff['training_accuracy'], '-g', lw=1, label='training accuracy')
-            
-            pl.plot(useful_stuff['validation_accuracy'], '.m', lw=1, label='validation accuracy')
-            # plot multiple accuracy
-            pl.plot(plot_accuracy[0], '-m', lw=1, label='validation accuracy cyp2d6i')
-            pl.plot(plot_accuracy[1], '-k', lw=1, label='validation accuracy NR-ER-LBD')
-            pl.plot(plot_accuracy[2], '-y', lw=1, label='validation accuracy cyp2c9i')
-            pl.plot(plot_accuracy[3], '-c', lw=1, label='validation accuracy ames')
-            pl.plot(plot_accuracy[4], ':m', lw=1, label='validation accuracy cyp2c19i')
-            pl.plot(useful_stuff['F1'], '-.c', label='validation F1')
-            pl.title('metrics')
-            pl.legend()
-            pl.ylim(0, 1)
-            pl.xlabel('epoch')
-            display.display(pl.gcf())
-            display.clear_output(wait=True)
-            time.sleep(1.0)
-        else:
-            pass
     return useful_stuff
